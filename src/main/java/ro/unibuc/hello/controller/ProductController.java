@@ -13,6 +13,7 @@ import ro.unibuc.hello.dto.AddProductDto;
 import ro.unibuc.hello.dto.ProductSellStockDto;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Controller
 public class ProductController {
@@ -65,16 +66,8 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseBody
     public List<ProductDto> getAllProducts() {
-        List<ProductDto> products = new ArrayList<ProductDto>();
         var entities = productRepository.findAll();
-        if(!entities.isEmpty()) {
-            for(ProductEntity entity : entities)
-            {
-                products.add(new ProductDto(entity));
-            }
-            return products;
-        }
-        return new ArrayList<ProductDto>();
+        return entities.stream().map(ProductDto::new).collect(Collectors.toList());
     }
 
     @PostMapping("/products/addProduct")
