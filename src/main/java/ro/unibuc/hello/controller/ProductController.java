@@ -2,20 +2,18 @@ package ro.unibuc.hello.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-import ro.unibuc.hello.data.ProductRepository;
 import ro.unibuc.hello.data.ProductEntity;
+import ro.unibuc.hello.data.ProductRepository;
+import ro.unibuc.hello.dto.AddProductDto;
 import ro.unibuc.hello.dto.ProductAddStockDto;
 import ro.unibuc.hello.dto.ProductDto;
-import ro.unibuc.hello.dto.AddProductDto;
 import ro.unibuc.hello.dto.ProductSellStockDto;
 import ro.unibuc.hello.exception.BadRequestException;
 import ro.unibuc.hello.exception.NoContentException;
 import ro.unibuc.hello.exception.NotFoundException;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,12 +38,39 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ProductDto> getAllProducts() {
+    public List<ProductDto> getAllProducts(@RequestParam(required = false) String sort) {
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
             throw new NoContentException();
         }
-        return entities.stream().map(ProductDto::new).collect(Collectors.toList());
+        var returnedEntities = entities.stream();
+        if (sort != null && !sort.equals("")) {
+            var split = sort.split("_");
+            if(split.length != 2 || !List.of("title", "description", "quantity").contains(split[0]) || !List.of("asc", "desc").contains(split[1])) {
+                throw new BadRequestException(new HashMap<>() {{
+                    put("sort", "bad argument");
+                }});
+            }
+            switch(split[0]) {
+                case "title": switch(split[1]) {
+                    case "asc": returnedEntities = returnedEntities.sorted((e1, e2) -> e1.title.compareToIgnoreCase(e2.title)); break;
+                    case "desc": returnedEntities = returnedEntities.sorted((e1, e2) -> e2.title.compareToIgnoreCase(e1.title)); break;
+                }
+                break;
+                case "description": switch(split[1]) {
+                    case "asc": returnedEntities = returnedEntities.sorted((e1, e2) -> e1.description.compareToIgnoreCase(e2.description)); break;
+                    case "desc": returnedEntities = returnedEntities.sorted((e1, e2) -> e2.description.compareToIgnoreCase(e1.description)); break;
+                }
+                break;
+                case "quantity": switch(split[1]) {
+                    case "asc": returnedEntities = returnedEntities.sorted((e1, e2) -> e1.quantity - e2.quantity); break;
+                    case "desc": returnedEntities = returnedEntities.sorted((e1, e2) -> e2.quantity - e1.quantity); break;
+                }
+                break;
+            }
+
+        }
+        return returnedEntities.map(ProductDto::new).collect(Collectors.toList());
     }
 
     @ResponseStatus(HttpStatus.OK)
