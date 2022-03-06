@@ -11,7 +11,12 @@ import ro.unibuc.hello.dto.ProductAddStockDto;
 import ro.unibuc.hello.dto.ProductDto;
 import ro.unibuc.hello.dto.AddProductDto;
 import ro.unibuc.hello.dto.ProductSellStockDto;
+import ro.unibuc.hello.exception.BadRequestException;
+import ro.unibuc.hello.exception.NoContentException;
+import ro.unibuc.hello.exception.NotFoundException;
+
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -21,63 +26,89 @@ public class ProductController {
     @Autowired
     private ProductRepository productRepository;
 
+    @ResponseStatus(HttpStatus.OK)
     @GetMapping("/product")
     @ResponseBody
-    public ProductDto sayHello(@RequestParam(name="name", required=false, defaultValue="Test") String name) {
+    public ProductDto sayHello(@RequestParam(name="name") String name) {
         var entity = productRepository.findByTitle(name);
-        if(entity != null) {
-            return new ProductDto(entity);
+        if(entity == null) {
+            throw new NotFoundException();
         }
-        return null;
+        return new ProductDto(entity);
     }
 
-    @PostMapping("/products/addStock")
-    public ResponseEntity<String> addProductStock(@RequestBody ProductAddStockDto model) {
+    @GetMapping("/products")
+    @ResponseStatus(HttpStatus.OK)
+    @ResponseBody
+    public List<ProductDto> getAllProducts() {
+        var entities = productRepository.findAll();
+        if (entities.size() == 0) {
+            throw new NoContentException();
+        }
+        return entities.stream().map(ProductDto::new).collect(Collectors.toList());
+    }
+
+    @ResponseStatus(HttpStatus.OK)
+    @PostMapping("/product/supply")
+    public void addProductStock(@RequestBody ProductAddStockDto model) {
+
+        if (model == null) {
+            throw new BadRequestException(new HashMap<>() {{
+                put("error", "body is missing");
+            }});
+        }
 
         if (model.quantity <= 0) {
-            return new ResponseEntity<>("negative quantity", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException(new HashMap<>() {{
+                put("quantity", "negative");
+            }});
         }
         var product = productRepository.findByTitle(model.title);
         if (product == null) {
-            return new ResponseEntity<>("product not found", HttpStatus.NOT_FOUND);
+            throw new BadRequestException(new HashMap<>() {{
+                put("product", "not found");
+            }});
         }
 
         product.quantity += model.quantity;
         productRepository.save(product);
-        return new ResponseEntity<>("added", HttpStatus.OK);
     }
 
-    @PostMapping("/products/sellStock")
-    public ResponseEntity<String> sellProductStock(@RequestBody ProductSellStockDto model) {
+    @PostMapping("/product/sell")
+    @ResponseStatus(HttpStatus.OK)
+    public void sellProductStock(@RequestBody ProductSellStockDto model) {
 
+        if (model == null) {
+            throw new BadRequestException(new HashMap<>() {{
+                put("error", "body is missing");
+            }});
+        }
         if (model.quantity <= 0) {
-            return new ResponseEntity<>("negative quantity", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException(new HashMap<>() {{
+                put("quantity", "negative");
+            }});
         }
         var product = productRepository.findByTitle(model.title);
         if (product == null) {
-            return new ResponseEntity<>("product not found", HttpStatus.NOT_FOUND);
+            throw new BadRequestException(new HashMap<>() {{
+                put("product", "not found");
+            }});
         }
 
         product.quantity -= model.quantity;
         productRepository.save(product);
-        return new ResponseEntity<>("sold", HttpStatus.OK);
     }
 
-    @GetMapping("/products")
-    @ResponseBody
-    public List<ProductDto> getAllProducts() {
-        var entities = productRepository.findAll();
-        return entities.stream().map(ProductDto::new).collect(Collectors.toList());
-    }
-
-    @PostMapping("/products/addProduct")
-    public ResponseEntity<String> addProduct(@RequestBody AddProductDto model) {
+    @PostMapping("/products/add")
+    @ResponseStatus(HttpStatus.CREATED)
+    public void addProduct(@RequestBody AddProductDto model) {
 
         if (model.quantity <= 0) {
-            return new ResponseEntity<>("negative quantity", HttpStatus.BAD_REQUEST);
+            throw new BadRequestException(new HashMap<>() {{
+                put("quantity", "negative");
+            }});
         }
         ProductEntity product = new ProductEntity(model.title, model.description, model.quantity);
         productRepository.save(product);
-        return new ResponseEntity<>("added", HttpStatus.OK);
     }
 }
