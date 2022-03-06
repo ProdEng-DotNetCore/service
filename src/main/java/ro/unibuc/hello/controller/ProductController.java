@@ -14,6 +14,8 @@ import ro.unibuc.hello.exception.BadRequestException;
 import ro.unibuc.hello.exception.NoContentException;
 import ro.unibuc.hello.exception.NotFoundException;
 
+
+=======
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -72,7 +74,7 @@ public class ProductController {
         }
         return returnedEntities.map(ProductDto::new).collect(Collectors.toList());
     }
-
+  
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/product/supply")
     public void addProductStock(@RequestBody ProductAddStockDto model) {
