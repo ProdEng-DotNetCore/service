@@ -130,7 +130,7 @@ public class ProductController {
         productRepository.save(product);
     }
 
-    @PostMapping("/products/add")
+    @PostMapping("/product/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addProduct(@RequestBody AddProductDto model) {
 
