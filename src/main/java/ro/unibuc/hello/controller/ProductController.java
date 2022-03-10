@@ -15,7 +15,6 @@ import ro.unibuc.hello.exception.NoContentException;
 import ro.unibuc.hello.exception.NotFoundException;
 
 
-=======
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +39,7 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ProductDto> getAllProducts(@RequestParam(required = false) String sort, int page, int productsOnPage) {
+    public List<ProductDto> getAllProducts(@RequestParam(required = true) String sort, int page, int productsOnPage) {
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
             throw new NoContentException();
