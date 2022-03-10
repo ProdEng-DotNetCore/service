@@ -40,7 +40,7 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ProductDto> getAllProducts(@RequestParam(required = false) String sort) {
+    public List<ProductDto> getAllProducts(@RequestParam(required = false) String sort, int page, int productsOnPage) {
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
             throw new NoContentException();
@@ -72,8 +72,12 @@ public class ProductController {
             }
 
         }
+
+        returnedEntities = returnedEntities.skip(page*productsOnPage).limit(productsOnPage);
+
         return returnedEntities.map(ProductDto::new).collect(Collectors.toList());
     }
+
   
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/product/supply")
