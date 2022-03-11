@@ -15,7 +15,6 @@ import ro.unibuc.hello.exception.NoContentException;
 import ro.unibuc.hello.exception.NotFoundException;
 
 
-=======
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -40,7 +39,7 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
-    public List<ProductDto> getAllProducts(@RequestParam(required = false) String sort) {
+    public List<ProductDto> getAllProducts(@RequestParam(required = true) String sort, int page, int productsOnPage) {
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
             throw new NoContentException();
@@ -72,8 +71,12 @@ public class ProductController {
             }
 
         }
+
+        returnedEntities = returnedEntities.skip(page*productsOnPage).limit(productsOnPage);
+
         return returnedEntities.map(ProductDto::new).collect(Collectors.toList());
     }
+
   
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/product/supply")
@@ -126,7 +129,7 @@ public class ProductController {
         productRepository.save(product);
     }
 
-    @PostMapping("/products/add")
+    @PostMapping("/product/add")
     @ResponseStatus(HttpStatus.CREATED)
     public void addProduct(@RequestBody AddProductDto model) {
 
