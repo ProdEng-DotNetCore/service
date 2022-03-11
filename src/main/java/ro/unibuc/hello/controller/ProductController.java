@@ -28,7 +28,7 @@ public class ProductController {
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/product")
     @ResponseBody
-    public ProductDto sayHello(@RequestParam(name="name") String name) {
+    public ProductDto getProduct(@RequestParam(name="name") String name) {
         var entity = productRepository.findByTitle(name);
         if(entity == null) {
             throw new NotFoundException();
