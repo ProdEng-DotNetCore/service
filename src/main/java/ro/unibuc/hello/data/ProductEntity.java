@@ -11,19 +11,9 @@ public class ProductEntity {
     public String description;
     public int quantity;
 
-
-    public ProductEntity() {}
-
     public ProductEntity(String title, String description, int quantity) {
         this.title = title;
         this.description = description;
         this.quantity = quantity;
-    }
-
-    @Override
-    public String toString() {
-        return String.format(
-                "Information[id='%s', title='%s', description='%s', quantity='%s']",
-                id, title, description, quantity);
     }
 }

@@ -153,6 +153,7 @@ class ProductControllerTest {
         catch (Exception e){
             Assertions.assertEquals(BadRequestException.class, e.getClass());
             Assertions.assertEquals("Bad Request", e.getMessage());
+            Assertions.assertNotNull(((BadRequestException)e).getProblems());
         }
     }
 
@@ -180,9 +181,9 @@ class ProductControllerTest {
     }
 
     @Test
-    void addProductStock_Negative() {
+    void addProductStock_BodyMissing() {
         try {
-            productController.addProductStock(new ProductAddStockDto());
+            productController.addProductStock(null);
             Assertions.fail();
         }
         catch (Exception e){
@@ -239,7 +240,7 @@ class ProductControllerTest {
     @Test
     void sellProductStock_BodyMissing() {
         try {
-            productController.sellProductStock(new ProductSellStockDto());
+            productController.sellProductStock(null);
             Assertions.fail();
         }
         catch (Exception e){

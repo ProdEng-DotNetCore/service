@@ -8,12 +8,4 @@ public class ProductAddStockDto {
         this.title = title;
         this.quantity = quantity;
     }
-
-    @Override
-    public String toString() {
-        return "ProductAddStockDto{" +
-                "title='" + title + '\'' +
-                ", quantity=" + quantity +
-                '}';
-    }
 }
