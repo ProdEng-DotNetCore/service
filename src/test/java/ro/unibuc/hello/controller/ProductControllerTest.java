@@ -1,4 +1,4 @@
-ackage ro.unibuc.hello.controller;
+package ro.unibuc.hello.controller;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -8,6 +8,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ro.unibuc.hello.data.ProductEntity;
 import ro.unibuc.hello.data.ProductRepository;
 import ro.unibuc.hello.dto.ProductAddStockDto;
+import ro.unibuc.hello.dto.ProductSellStockDto;
 import ro.unibuc.hello.exception.BadRequestException;
 import ro.unibuc.hello.exception.NoContentException;
 import ro.unibuc.hello.exception.NotFoundException;
@@ -165,10 +166,8 @@ class ProductControllerTest {
 
     @Test
     void addProductStock_NotFound() {
-        var product = new ProductEntity("4", "24", 3);
-        when(mockRepository.findByTitle(anyString())).thenReturn(product);
         try {
-            var res = productController.addProductStock(new ProductAddStockDto("4", 1));
+            productController.addProductStock(new ProductAddStockDto("4", 1));
             Assertions.fail();
         }
         catch (Exception e){
@@ -188,10 +187,8 @@ class ProductControllerTest {
 
     @Test
     void sellProductStock_NotFound() {
-        var product = new ProductEntity("title", "desc", 3);
-        when(mockRepository.findByTitle(anyString())).thenReturn(product);
         try {
-            var res = productController.sellProductStock(new ProductSellStockDto("title", 1));
+            productController.sellProductStock(new ProductSellStockDto("title", 1));
             Assertions.fail();
         }
         catch (Exception e){
