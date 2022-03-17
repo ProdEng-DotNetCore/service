@@ -1,4 +1,4 @@
-package ro.unibuc.hello.controller;
+ackage ro.unibuc.hello.controller;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -165,6 +165,11 @@ class ProductControllerTest {
 
     @Test
     void sellProductStock() {
+        var product = new ProductEntity("title", "desc", 3);
+        when(mockRepository.findByTitle(anyString())).thenReturn(product);
+        productController.sellProductStock(new ProductSellStockDto("title", 1));
+        verify(mockRepository, times(1)).save(any());
+        Assertions.assertEquals(2, product.quantity);
     }
 
     @Test
