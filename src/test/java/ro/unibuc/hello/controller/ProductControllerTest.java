@@ -180,6 +180,18 @@ class ProductControllerTest {
     }
 
     @Test
+    void addProductStock_Negative() {
+        try {
+            productController.addProductStock(new ProductAddStockDto("4", -1));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
+    }
+
+    @Test
     void sellProductStock() {
         var product = new ProductEntity("title", "desc", 3);
         when(mockRepository.findByTitle(anyString())).thenReturn(product);
@@ -192,6 +204,18 @@ class ProductControllerTest {
     void sellProductStock_NotFound() {
         try {
             productController.sellProductStock(new ProductSellStockDto("title", 1));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
+    }
+
+    @Test
+    void sellProductStock_Negative() {
+        try {
+            productController.sellProductStock(new ProductSellStockDto("title", -1));
             Assertions.fail();
         }
         catch (Exception e){
