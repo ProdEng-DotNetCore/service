@@ -1,4 +1,4 @@
-package ro.unibuc.hello.controller;
+ackage ro.unibuc.hello.controller;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -164,8 +164,43 @@ class ProductControllerTest {
     }
 
     @Test
-    void sellProductStock() {
+    void addProductStock_NotFound() {
+        var product = new ProductEntity("4", "24", 3);
+        when(mockRepository.findByTitle(anyString())).thenReturn(product);
+        try {
+            var res = productController.addProductStock(new ProductAddStockDto("4", 1));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
     }
+
+    @Test
+    void sellProductStock() {
+        var product = new ProductEntity("title", "desc", 3);
+        when(mockRepository.findByTitle(anyString())).thenReturn(product);
+        productController.sellProductStock(new ProductSellStockDto("title", 1));
+        verify(mockRepository, times(1)).save(any());
+        Assertions.assertEquals(2, product.quantity);
+    }
+
+    @Test
+    void sellProductStock_NotFound() {
+        var product = new ProductEntity("title", "desc", 3);
+        when(mockRepository.findByTitle(anyString())).thenReturn(product);
+        try {
+            var res = productController.sellProductStock(new ProductSellStockDto("title", 1));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
+    }
+
+
 
     @Test
     void addProduct() {
