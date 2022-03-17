@@ -7,6 +7,7 @@ import org.mockito.Mock;
 import org.springframework.boot.test.context.SpringBootTest;
 import ro.unibuc.hello.data.ProductEntity;
 import ro.unibuc.hello.data.ProductRepository;
+import ro.unibuc.hello.dto.AddProductDto;
 import ro.unibuc.hello.dto.ProductAddStockDto;
 import ro.unibuc.hello.dto.ProductSellStockDto;
 import ro.unibuc.hello.exception.BadRequestException;
@@ -157,11 +158,13 @@ class ProductControllerTest {
 
     @Test
     void addProductStock_Saves() {
-        when(mockRepository.findByTitle(anyString())).thenReturn(new ProductEntity("4", "24", 3));
+        var product = new ProductEntity("4", "24", 3);
+        when(mockRepository.findByTitle(anyString())).thenReturn(product);
 
-        productController.addProductStock(new ProductAddStockDto("4", 1));
+        productController.addProductStock(new ProductAddStockDto("4", 10));
 
         verify(mockRepository, times(1)).save(any());
+        Assertions.assertEquals(13, product.quantity);
     }
 
     @Test
@@ -221,9 +224,25 @@ class ProductControllerTest {
         }
     }
 
-
-
     @Test
     void addProduct() {
+        var product = new AddProductDto("title", "desc", 10);
+        productController.addProduct(product);
+
+        verify(mockRepository, times(1)).save(any());
+    }
+
+    @Test
+    void addProduct_ThrowsBadRequest() {
+        var product = new AddProductDto("title", "desc", -4);
+
+        try {
+            productController.addProduct(product);
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
     }
 }
