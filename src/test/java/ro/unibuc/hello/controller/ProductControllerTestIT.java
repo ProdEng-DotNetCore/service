@@ -66,4 +66,39 @@ public class ProductControllerTestIT {
         Assertions.assertEquals(1, productRepository.findByTitle("Este").quantity);
     }
 
+    @Test
+    @Order(4)
+    void addProductStock() {
+
+        productController.addProductStock(new ProductAddStockDto("Este", 1));
+
+        Assertions.assertEquals(51, productRepository.findByTitle("Este").quantity);
+    }
+
+    @Test
+    @Order(5)
+    void addProductStock_Throws() {
+        try{
+            productController.addProductStock(new ProductAddStockDto("Nu Este", 1));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
+    }
+
+    @Test
+    @Order(6)
+    void sellProductStock_Throws() {
+        try{
+            productController.sellProductStock(new ProductSellStockDto("Nu Este", 49));
+            Assertions.fail();
+        }
+        catch (Exception e){
+            Assertions.assertEquals(BadRequestException.class, e.getClass());
+            Assertions.assertEquals("Bad Request", e.getMessage());
+        }
+    }
+
 }
