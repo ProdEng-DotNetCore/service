@@ -9,7 +9,9 @@ import org.springframework.boot.test.context.SpringBootTest;
 import ro.unibuc.hello.data.ProductEntity;
 import ro.unibuc.hello.data.ProductRepository;
 import ro.unibuc.hello.dto.AddProductDto;
+import ro.unibuc.hello.dto.ProductAddStockDto;
 import ro.unibuc.hello.dto.ProductSellStockDto;
+import ro.unibuc.hello.exception.BadRequestException;
 import ro.unibuc.hello.exception.NotFoundException;
 
 @SpringBootTest
