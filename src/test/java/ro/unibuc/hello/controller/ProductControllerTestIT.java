@@ -79,7 +79,7 @@ public class ProductControllerTestIT {
     @Order(5)
     void addProductStock_Throws() {
         try{
-            productController.addProductStock(new ProductAddStockDto("Este", 1));
+            productController.addProductStock(new ProductAddStockDto("Nu Este", 1));
             Assertions.fail();
         }
         catch (Exception e){
@@ -92,7 +92,7 @@ public class ProductControllerTestIT {
     @Order(6)
     void sellProductStock_Throws() {
         try{
-            productController.sellProductStock(new ProductSellStockDto("Este", 49));
+            productController.sellProductStock(new ProductSellStockDto("Nu Este", 49));
             Assertions.fail();
         }
         catch (Exception e){
