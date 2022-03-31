@@ -23,7 +23,7 @@ pipeline {
                     NEW_MINOR_VERSION = sh([script: '${((MINOR_VERSION + 1))}', returnStdout: true]).trim()
                     IMAGE_VERSION = sh([script: '${MAJOR_VERSION}.${NEW_MINOR_VERSION}.${PATCH_VERSION}', returnStdout: true]).trim()
                 }
-                sh "docker build -t ${DOCKER_USERNAME}/hello-img:${MAJOR_VERSION}.\$((${MINOR_VERSION} + 1)).${PATCH_VERSION} ."
+//                 sh "docker build -t ${DOCKER_USERNAME}/${DOCKER_TAG}:${IMAGE_VERSION} ."
 
                 sh "docker build -t ${DOCKER_USERNAME}/${DOCKER_TAG}:${IMAGE_VERSION} ."
                 sh "docker login docker.io -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD}"
