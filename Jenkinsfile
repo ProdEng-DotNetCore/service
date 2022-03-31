@@ -20,8 +20,8 @@ pipeline {
                     MAJOR_VERSION = sh([script: 'git tag | cut -d . -f 1', returnStdout: true]).trim()
                     MINOR_VERSION = sh([script: 'git tag | cut -d . -f 2', returnStdout: true]).trim()
                     PATCH_VERSION = sh([script: 'git tag | cut -d . -f 3', returnStdout: true]).trim()
-                    NEW_MINOR_VERSION = sh([script: '${((MINOR_VERSION + 1))}', returnStdout: true]).trim()
-                    IMAGE_VERSION = sh([script: '${MAJOR_VERSION}.${NEW_MINOR_VERSION}.${PATCH_VERSION}', returnStdout: true]).trim()
+                    NEW_MINOR_VERSION = sh([script: "${((MINOR_VERSION + 1))}", returnStdout: true]).trim()
+                    IMAGE_VERSION = sh([script: "${MAJOR_VERSION}.${NEW_MINOR_VERSION}.${PATCH_VERSION}", returnStdout: true]).trim()
                 }
 //                 sh "docker build -t ${DOCKER_USERNAME}/${DOCKER_TAG}:${IMAGE_VERSION} ."
 
