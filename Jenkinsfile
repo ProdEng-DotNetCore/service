@@ -2,7 +2,7 @@ pipeline {
     agent any
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
-        DOCKER_TAG = 'hello-img'
+        DOCKER_TAG = 'test-img'
         DOCKER_USERNAME = 'vikcocfmi'
     }
 
