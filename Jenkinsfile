@@ -3,7 +3,7 @@ pipeline {
     environment {
         DOCKER_PASSWORD = credentials("docker_password")
         GITHUB_TOKEN = credentials("github_token")
-        DOCKER_TAG = 'test-img'
+        DOCKER_TAG = 'hello-img'
         DOCKER_USERNAME = 'vikcocfmi'
     }
 
