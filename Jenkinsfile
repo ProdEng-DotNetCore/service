@@ -33,11 +33,17 @@ pipeline {
               }
         }
 
-        stage('') {
+        stage('Fetch container') {
             steps {
                 script {
                     sh([script: "IMAGE_TAG=${env.IMAGE_TAG} docker-compose up -d hello"])
                 }
+            }
+        }
+
+        stage('Run tests'){
+            steps{
+                sh '/gradlew testE2E'
             }
         }
 
