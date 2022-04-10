@@ -1,5 +1,8 @@
 package ro.unibuc.hello.controller;
 
+import io.micrometer.core.annotation.Counted;
+import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
@@ -18,12 +21,16 @@ import ro.unibuc.hello.exception.NotFoundException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 
 @Controller
 public class ProductController {
 
     @Autowired
     private ProductRepository productRepository;
+
+    @Autowired
+    MeterRegistry metricsRegistry;
 
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/product")
@@ -39,6 +46,8 @@ public class ProductController {
     @GetMapping("/products")
     @ResponseStatus(HttpStatus.OK)
     @ResponseBody
+    @Timed(value = "product.getall.time", description = "Time taken to return list of sorted and paged products")
+    @Counted(value = "product.getall.count", description = "Times list of products was returned")
     public List<ProductDto> getAllProducts(@RequestParam(required = true) String sort, int page, int productsOnPage) {
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
@@ -80,6 +89,8 @@ public class ProductController {
   
     @ResponseStatus(HttpStatus.OK)
     @PostMapping("/product/supply")
+    @Timed(value = "product.addstock.time", description = "Time taken to add stock to an existing product")
+    @Counted(value = "product.addstock.count", description = "Times stock was added to products")
     public void addProductStock(@RequestBody ProductAddStockDto model) {
 
         if (model == null) {
@@ -106,6 +117,8 @@ public class ProductController {
 
     @PostMapping("/product/sell")
     @ResponseStatus(HttpStatus.OK)
+    @Timed(value = "product.sellstock.time", description = "Time taken to sell stock from an existing product")
+    @Counted(value = "product.sellstock.count", description = "Times stock was sold from products")
     public void sellProductStock(@RequestBody ProductSellStockDto model) {
 
         if (model == null) {
@@ -131,6 +144,8 @@ public class ProductController {
 
     @PostMapping("/product/add")
     @ResponseStatus(HttpStatus.CREATED)
+    @Timed(value = "product.add.time", description = "Time taken to add a new product")
+    @Counted(value = "product.add.count", description = "Times a new product was added")
     public void addProduct(@RequestBody AddProductDto model) {
 
         if (model.quantity <= 0) {
