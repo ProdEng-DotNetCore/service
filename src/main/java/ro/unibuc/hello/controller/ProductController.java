@@ -2,6 +2,8 @@ package ro.unibuc.hello.controller;
 
 import io.micrometer.core.annotation.Counted;
 import io.micrometer.core.annotation.Timed;
+import io.micrometer.core.instrument.Counter;
+import io.micrometer.core.instrument.Gauge;
 import io.micrometer.core.instrument.MeterRegistry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,6 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.concurrent.atomic.AtomicLong;
 
+// stock negativ -> alerta
+// catch Exception -> intorci 500 + alerta
+
 @Controller
 public class ProductController {
 
@@ -32,10 +37,15 @@ public class ProductController {
     @Autowired
     MeterRegistry metricsRegistry;
 
+    private static final String helloTemplate = "Hello, %s!";
+    private static final String informationTemplate = "%s : %s!";
+    private final AtomicLong counter = new AtomicLong();
+
     @ResponseStatus(HttpStatus.OK)
     @GetMapping("/product")
     @ResponseBody
     public ProductDto getProduct(@RequestParam(name="name") String name) {
+        metricsRegistry.counter("product_get", "endpoint", "Product").increment();
         var entity = productRepository.findByTitle(name);
         if(entity == null) {
             throw new NotFoundException();
@@ -49,6 +59,7 @@ public class ProductController {
     @Timed(value = "product.getall.time", description = "Time taken to return list of sorted and paged products")
     @Counted(value = "product.getall.count", description = "Times list of products was returned")
     public List<ProductDto> getAllProducts(@RequestParam(required = true) String sort, int page, int productsOnPage) {
+
         var entities = productRepository.findAll();
         if (entities.size() == 0) {
             throw new NoContentException();
@@ -81,9 +92,17 @@ public class ProductController {
 
         }
 
-        returnedEntities = returnedEntities.skip(page*productsOnPage).limit(productsOnPage);
+        returnedEntities = returnedEntities.skip((long) page *productsOnPage).limit(productsOnPage);
 
-        return returnedEntities.map(ProductDto::new).collect(Collectors.toList());
+        var result = returnedEntities.map(ProductDto::new).collect(Collectors.toList());
+
+        if (result.size() == 0) {
+            metricsRegistry.counter("product_get_no_results", "endpoint", "Product").increment();
+        }
+
+        metricsRegistry.gauge("product_count_number", result.size());
+
+        return result;
     }
 
   
@@ -104,8 +123,14 @@ public class ProductController {
                 put("quantity", "negative");
             }});
         }
+
+        if (model.quantity > 1000) {
+            metricsRegistry.counter("product_add_stock_over_1000", "endpoint", "Product").increment();
+        }
+
         var product = productRepository.findByTitle(model.title);
         if (product == null) {
+            metricsRegistry.counter("product_get_no_results", "endpoint", "Product").increment();
             throw new BadRequestException(new HashMap<>() {{
                 put("product", "not found");
             }});
@@ -139,6 +164,10 @@ public class ProductController {
         }
 
         product.quantity -= model.quantity;
+
+        if(product.quantity < 0) {
+            metricsRegistry.counter("product_stock_negative_number", "endpoint", "Product").increment();
+        }
         productRepository.save(product);
     }
 
